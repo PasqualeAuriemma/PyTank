@@ -44,9 +44,13 @@ def send_value_to_web(self, value, key, timestamp):
         return False
 '''
 class Viewer:
-    def __init__(self, _w = 128, _h = 64):
+    def __init__(self, i2c=None, config=None, _w = 128, _h = 64):
         # ESP32 Pin assignment 
-        self._i2c = I2C(0, scl=Pin(22), sda=Pin(21), freq=800000)
+        if i2c:
+            self._i2c = i2c
+        else:
+            self._i2c = I2C(0, scl=Pin(22), sda=Pin(21), freq=800000)
+            
         self.ds = DS3231_RTC(self._i2c) #RTC
         self.conn = ConnectionManaging('Wokwi-GUEST', '',"myfishtank.altervista.org")
         # Start the thread
@@ -60,7 +64,11 @@ class Viewer:
         self._temperature = "0"
         self._ec = "0"
         self._ph = "0"
-        self._config = Config()
+        
+        if config:
+            self._config = config
+        else:
+            self._config = Config()
 
         # DS3231 on 0x68
         self.I2C_ADDR = 0x68     # DEC 104, HEX 0x68 
@@ -95,6 +103,9 @@ class Viewer:
         self.conn.connect()
         #print(self.conn.connection_status())
         ntptime.settime()
+        unix_epoch_time1 = str(self.ds.unix_epoch_time(time()))
+        print("Unix epoch time:", unix_epoch_time1)
+        self.conn.send_value_to_web("530", "Ec", unix_epoch_time1)
         #conn.post_https_request("Ec", "530", "Date", "1739311432")
         self.conn.disconnect()
         #print(self.conn.connection_status())
@@ -402,8 +413,3 @@ class Viewer:
     
 
  
-
-
-
-
-

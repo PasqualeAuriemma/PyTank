@@ -127,37 +127,7 @@ class ConnectionManaging:
         """Funzione di supporto per la stampa dei messaggi, può essere estesa per il logging su file/UART."""
         print(message, end=end)
 
-    def connection_status(self):
-        '''
-        WLAN.status([param])
-            Return the current status of the wireless connection.
-            When called with no argument the return value describes the network link status. The possible statuses are defined as constants in the network module:
 
-            STAT_IDLE: no connection and no activity,
-
-            STAT_CONNECTING: connecting in progress,
-
-            STAT_WRONG_PASSWORD: failed due to incorrect password,
-
-            STAT_NO_AP_FOUND: failed because no access point replied,
-
-            STAT_CONNECT_FAIL: failed due to other problems,
-
-            STAT_GOT_IP: connection successful.
-        ''' 
-        status = self._station.status()
-        if status == network.STAT_IDLE:
-            return "NO CONNECTION"
-        elif status == network.STAT_CONNECTING:
-            return "CONNECTING"
-        elif status == network.STAT_WRONG_PASSWORD:
-            return "WRONG PASSWORD"
-        elif status == network.STAT_NO_AP_FOUND:
-            return "NO AP FOUND"
-        elif status == network.STAT_GOT_IP:
-            return "CONNECTED"
-        else:    
-            return "OTHER"     
 
     def _post_https_request(self, url, data, headers=None, max_retries=3, retry_delay=2):
         """
@@ -177,7 +147,7 @@ class ConnectionManaging:
                 self.log_message(f"\nEffettuando richiesta POST a: {url} (Tentativo {attempt}/{max_retries})")
                 self.log_message(f"Invio dati: {json.dumps(data)}")
 
-                response = urequests.post(url, json=data,  timeout=15) # Timeout aumentato
+                response = urequests.post(url, headers=headers, data=json.dumps(data), timeout=20)
 
                 if 200 <= response.status_code < 300:
                     self.log_message(f"Richiesta completata con successo! (Codice di stato: {response.status_code})")
@@ -194,10 +164,12 @@ class ConnectionManaging:
             except OSError as e:
                 self.log_message(f"Errore di rete durante la richiesta POST (Tentativo {attempt}): {e}")
                 if attempt < max_retries:
-                    self.log_message(f"Riprovo tra {retry_delay} secondi...")
-                    time.sleep(retry_delay)
+                    # Implementa il backoff esponenziale per dare alla rete/server il tempo di recuperare.
+                    backoff_time = retry_delay * (2 ** (attempt - 1))
+                    self.log_message(f"Riprovo tra {backoff_time} secondi...")
+                    time.sleep(backoff_time)
                 else:
-                    self.log_message("Tutti i tentativi falliti.")
+                    self.log_message("Tutti i tentativi di richiesta POST sono falliti dopo il backoff esponenziale.")
                     return None
             except Exception as e:
                 self.log_message(f"Si è verificato un errore imprevisto: {e}")
