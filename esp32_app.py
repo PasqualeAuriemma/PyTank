@@ -12,9 +12,9 @@ from time import sleep, localtime, time
 from machine import Pin, I2C, ADC
 
 # Project-specific Modules
-from viewer import Viewer
+from Manager.viewerManager import Viewer
 from Config import Config
-from ds3231 import DS3231_RTC
+from Modules.ds3231 import DS3231_RTC
 import onewire, ds18x20
 import ntptime
 

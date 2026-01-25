@@ -19,7 +19,7 @@ sys.modules['time'] = mock_time
 sys.modules['gc'] = mock_gc
 
 # Now, we can safely import the class we want to test.
-from ConnectionManaging import ConnectionManaging
+from Manager.ConnectionManager import ConnectionManaging
 
 # --- Pytest Fixtures ---
 

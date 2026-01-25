@@ -23,7 +23,7 @@
 
 import machine
 from machine import Pin, SPI, SoftSPI
-import sdcard
+import Modules.sdcard as sdcard
 import os
 from time import sleep_ms
 import json 

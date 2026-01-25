@@ -1,14 +1,14 @@
 from machine import Pin, I2C
-import images_repo as im
+import Icons.images_repo as im
 import random
-from pymenu import *
-import ssd1306
+from Menu.pymenu import *
+import Modules.ssd1306 as ssd1306
 from time import sleep, localtime, time
-from sdCardManager import sdCardManager
+from Manager.sdCardManager import sdCardManager
 from Config import Config
-from ds3231 import DS3231_RTC
+from Modules.ds3231 import DS3231_RTC
 import ntptime
-from ConnectionManaging import ConnectionManaging
+from Manager.ConnectionManager import ConnectionManaging
 import _thread
 
 '''
@@ -44,7 +44,7 @@ def send_value_to_web(self, value, key, timestamp):
         return False
 '''
 class Viewer:
-    def __init__(self, i2c=None, config=None, _w = 128, _h = 64):
+    def __init__(self, i2c=None, config:Config=None, _w = 128, _h = 64):
         # ESP32 Pin assignment 
         if i2c:
             self._i2c = i2c
@@ -52,9 +52,9 @@ class Viewer:
             self._i2c = I2C(0, scl=Pin(22), sda=Pin(21), freq=800000)
             
         self.ds = DS3231_RTC(self._i2c) #RTC
-        self.conn = ConnectionManaging('Wokwi-GUEST', '',"myfishtank.altervista.org")
+        self.conn = ConnectionManaging('CasaPATC', 'CasaDiPT240!',"myfishtank.altervista.org") #'Wokwi-GUEST', '',
         # Start the thread
-        #self.set_ntp()
+        self.set_ntp()
         self.oled_width = _w
         self.oled_height = _h
         self._is_enabled_menu = False
@@ -101,14 +101,14 @@ class Viewer:
     def set_ntp(self):
         #print(conn.connection_status())
         self.conn.connect()
-        #print(self.conn.connection_status())
+        print(self.conn.connection_status())
         ntptime.settime()
         unix_epoch_time1 = str(self.ds.unix_epoch_time(time()))
         print("Unix epoch time:", unix_epoch_time1)
-        self.conn.send_value_to_web("530", "Ec", unix_epoch_time1)
+        self.conn.send_value_to_web("999", "Ec", unix_epoch_time1)
         #conn.post_https_request("Ec", "530", "Date", "1739311432")
         self.conn.disconnect()
-        #print(self.conn.connection_status())
+        print(self.conn.connection_status())
         print(list(localtime()))
         self.ds.datetime = localtime()
         
