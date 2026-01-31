@@ -13,7 +13,7 @@ from machine import Pin, I2C, ADC
 
 # Project-specific Modules
 from Manager.viewerManager import Viewer
-from Config import Config
+from Resource.Config import Config
 from Modules.ds3231 import DS3231_RTC
 import onewire, ds18x20
 import ntptime

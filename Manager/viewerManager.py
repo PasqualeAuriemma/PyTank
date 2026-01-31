@@ -5,7 +5,7 @@ from Menu.pymenu import *
 import Modules.ssd1306 as ssd1306
 from time import sleep, localtime, time
 from Manager.sdCardManager import sdCardManager
-from Config import Config
+from Resource.Config import Config
 from Modules.ds3231 import DS3231_RTC
 import ntptime
 from Manager.ConnectionManager import ConnectionManaging
